@@ -17,11 +17,11 @@ class ExchangeProposal(models.Model):
     comment = models.TextField()
     status = models.CharField(
         choices={
-            ("ожидает", "ожидает"),
-            ("ожидает", "принято"),
-            ("отклонено", "отклонено"),
+            ("Ожидает", "Ожидает"),
+            ("Принято", "Принято"),
+            ("Отклонено", "Отклонено"),
         },
-        default="ожидает",
+        default="Ожидает",
     )
     created_at = models.DateTimeField(
         auto_now_add=True,
