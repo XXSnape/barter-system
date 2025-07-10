@@ -32,4 +32,6 @@ class IsReceiverOrSender(permissions.BasePermission):
             obj.ad_sender.user,
         ):
             return True
+        if request.method == "DELETE":
+            return request.user == obj.ad_sender.user
         return obj.ad_receiver.user == request.user
