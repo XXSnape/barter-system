@@ -20,7 +20,7 @@ class Ad(models.Model):
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="ads",
