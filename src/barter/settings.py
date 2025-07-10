@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third-party apps
     "rest_framework",
+    # third-party apps
+    "ads.apps.AdsConfig",
 ]
 
 MIDDLEWARE = [
