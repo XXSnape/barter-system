@@ -1,5 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
+from rest_framework.permissions import IsAuthenticated
 
 from ads.models import Ad, ExchangeProposal
 from ads.serializers import (
@@ -35,6 +36,7 @@ class AdViewSet(viewsets.ModelViewSet):
 
 
 class ExchangeProposalViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action == "create":
