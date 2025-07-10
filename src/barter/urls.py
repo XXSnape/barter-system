@@ -31,4 +31,8 @@ urlpatterns = [
         "api/v1/auth/",
         include("rest_framework.urls"),
     ),
+    path(
+        "api/v1/",
+        include("ads.urls"),
+    ),
 ]
