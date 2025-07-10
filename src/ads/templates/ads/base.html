@@ -1,112 +1,326 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создать объявление</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4cc9f0;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            background: white;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-title {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .error-message i {
+            margin-right: 0.5rem;
+        }
+
+        .character-counter {
+            font-size: 0.75rem;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2 class="mb-4">Создать новое объявление</h2>
+    <div class="container py-5">
+        <div class="form-container">
+            <h2 class="form-title">
+                <i class="bi bi-plus-circle-fill me-2"></i>Создать новое объявление
+            </h2>
 
-    <form id="ad-create-form" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+            <form id="ad-create-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
 
-        <!-- Общие ошибки формы -->
-        {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-            {{ form.non_field_errors }}
-        </div>
-        {% endif %}
-
-        <div class="mb-3">
-            <label for="title" class="form-label">Название*</label>
-            <input type="text" class="form-control" id="title" name="title"
-                   required maxlength="128"
-                   placeholder="Например: Книга 'Мастер и Маргарита'">
-            {% if form.errors.title %}
-            <div class="text-danger">{{ form.errors.title }}</div>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="description" class="form-label">Описание*</label>
-            <textarea class="form-control" id="description" name="description"
-                      rows="5" required
-                      placeholder="Подробно опишите товар..."></textarea>
-            {% if form.errors.description %}
-            <div class="text-danger">{{ form.errors.description }}</div>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="image_url" class="form-label">Ссылка на изображение</label>
-            <input type="url" class="form-control" id="image_url" name="image_url"
-                   maxlength="512"
-                   placeholder="https://example.com/image.jpg">
-            {% if form.errors.image_url %}
-            <div class="text-danger">{{ form.errors.image_url }}</div>
-            {% endif %}
-        </div>
-
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="category" class="form-label">Категория*</label>
-                <select class="form-select" id="category" name="category" required>
-                    <option value="" selected disabled>Выберите категорию</option>
-                    <option value="Книги">Книги</option>
-                    <option value="Электроника">Электроника</option>
-                    <option value="Одежда">Одежда</option>
-                    <!-- Добавьте другие категории -->
-                </select>
-                {% if form.errors.category %}
-                <div class="text-danger">{{ form.errors.category }}</div>
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <div>{{ form.non_field_errors }}</div>
+                </div>
                 {% endif %}
-            </div>
 
-            <div class="col-md-6">
-                <label for="condition" class="form-label">Состояние*</label>
-                <select class="form-select" id="condition" name="condition" required>
-                    <option value="" selected disabled>Выберите состояние</option>
-                    <option value="Новое">Новое</option>
-                    <option value="Б/у">Б/у</option>
-                    <option value="На запчасти">На запчасти</option>
-                </select>
-                {% if form.errors.condition %}
-                <div class="text-danger">{{ form.errors.condition }}</div>
-                {% endif %}
-            </div>
+                <div class="mb-4">
+                    <label for="title" class="form-label">Название*</label>
+                    <input type="text" class="form-control" id="title" name="title"
+                           required maxlength="128"
+                           placeholder="Например: Книга 'Мастер и Маргарита' в отличном состоянии">
+                    <div class="character-counter"><span id="title-counter">0</span>/128</div>
+                    {% if form.errors.title %}
+                    <div class="error-message">
+                        <i class="bi bi-exclamation-circle"></i>
+                        {{ form.errors.title }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="description" class="form-label">Описание*</label>
+                    <textarea class="form-control" id="description" name="description"
+                              rows="6" required
+                              placeholder="Подробно опишите товар: состояние, особенности, причины продажи..."></textarea>
+                    <div class="character-counter"><span id="description-counter">0</span>/5000</div>
+                    {% if form.errors.description %}
+                    <div class="error-message">
+                        <i class="bi bi-exclamation-circle"></i>
+                        {{ form.errors.description }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label for="image_url" class="form-label">Ссылка на изображение</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-image"></i></span>
+                        <input type="url" class="form-control" id="image_url" name="image_url"
+                               maxlength="512"
+                               placeholder="https://example.com/photo.jpg">
+                    </div>
+                    <div class="character-counter"><span id="image_url-counter">0</span>/512</div>
+                    <img id="image-preview" src="#" alt="Предпросмотр изображения" class="preview-image img-thumbnail">
+                    {% if form.errors.image_url %}
+                    <div class="error-message">
+                        <i class="bi bi-exclamation-circle"></i>
+                        {{ form.errors.image_url }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="category" class="form-label">Категория*</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="" selected disabled>Выберите категорию</option>
+                            <option value="Книги">Книги</option>
+                            <option value="Электроника">Электроника</option>
+                            <option value="Одежда">Одежда</option>
+                            <option value="Мебель">Мебель</option>
+                            <option value="Спорт">Спорт</option>
+                            <option value="Другое">Другое</option>
+                        </select>
+                        {% if form.errors.category %}
+                        <div class="error-message">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ form.errors.category }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="condition" class="form-label">Состояние*</label>
+                        <select class="form-select" id="condition" name="condition" required>
+                            <option value="" selected disabled>Выберите состояние</option>
+                            <option value="Новое">Новое</option>
+                            <option value="Б/у - Отличное">Б/у - Отличное</option>
+                            <option value="Б/у - Хорошее">Б/у - Хорошее</option>
+                            <option value="Б/у - Удовлетворительное">Б/у - Удовлетворительное</option>
+                            <option value="На запчасти">На запчасти</option>
+                        </select>
+                        {% if form.errors.condition %}
+                        <div class="error-message">
+                            <i class="bi bi-exclamation-circle"></i>
+                            {{ form.errors.condition }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back()">
+                        <i class="bi bi-arrow-left me-2"></i>Назад
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-2"></i>Создать объявление
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <button type="submit" class="btn btn-primary">Создать объявление</button>
-    </form>
-</div>
-<script>
-document.getElementById('ad-create-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    const formData = new FormData(e.target);
-
-    try {
-        const response = await fetch('/api/v1/ads/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(Object.fromEntries(formData))
+    <script>
+        // Счетчик символов
+        document.getElementById('title').addEventListener('input', function() {
+            document.getElementById('title-counter').textContent = this.value.length;
         });
 
-        if (response.ok) {
-            window.location.href = '/ads/';  // Редирект после успешного создания
-        } else {
-            const errors = await response.json();
-            console.error('Ошибка создания:', errors);
-        }
-    } catch (error) {
-        console.error('Ошибка сети:', error);
-    }
-});
-</script>
+        document.getElementById('description').addEventListener('input', function() {
+            document.getElementById('description-counter').textContent = this.value.length;
+        });
+
+        document.getElementById('image_url').addEventListener('input', function() {
+            document.getElementById('image_url-counter').textContent = this.value.length;
+
+            // Превью изображения
+            const preview = document.getElementById('image-preview');
+            if (this.value) {
+                preview.src = this.value;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Обработка формы с улучшенным UX
+        document.getElementById('ad-create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+
+            // Показать индикатор загрузки
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Создание...';
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch('/api/v1/ads/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(Object.fromEntries(formData))
+                });
+
+                if (response.ok) {
+                    // Показать уведомление об успехе
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Успех!</strong> Объявление успешно создано.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    form.parentNode.insertBefore(successAlert, form.nextSibling);
+
+                    // Очистить форму
+                    form.reset();
+                    document.querySelectorAll('.character-counter span').forEach(el => el.textContent = '0');
+                    document.getElementById('image-preview').style.display = 'none';
+
+                    // Перенаправить через 2 секунды
+                    setTimeout(() => {
+                        window.location.href = 'ads/';
+                    }, 2000);
+                } else {
+                    const errors = await response.json();
+                    console.error('Ошибка создания:', errors);
+
+                    // Показать ошибки
+                    const errorAlert = document.createElement('div');
+                    errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                    errorAlert.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Ошибка!</strong> ${Object.values(errors).join(' ')}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    form.parentNode.insertBefore(errorAlert, form.nextSibling);
+                }
+            } catch (error) {
+                console.error('Ошибка сети:', error);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    </script>
 </body>
 </html>
