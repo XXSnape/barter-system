@@ -19,5 +19,6 @@ router.register(
 
 urlpatterns = router.urls
 urlpatterns += [
-    path("hi", TemplateView.as_view(template_name="ads/base.html"))
+    path("create", TemplateView.as_view(template_name="ads/base.html")),
+    path("all", TemplateView.as_view(template_name="ads/ads.html")),
 ]
