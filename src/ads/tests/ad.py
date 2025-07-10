@@ -48,6 +48,24 @@ class AdTests(APITestCase):
             transform=lambda ad: ad.pk,
         )
 
+    def test_search_in_title(self):
+        url = reverse("ads:ad-list")
+        response = self.client.get(url, query_params={"search": "2"})
+
+        json = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json["results"]), 1)
+        self.assertEqual(json["results"][0]["id"], self.ad2.pk)
+
+    def test_search_by_condition(self):
+        url = reverse("ads:ad-list")
+        response = self.client.get(url, query_params={"condition": "New"})
+
+        json = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(json["results"]), 1)
+        self.assertEqual(json["results"][0]["id"], self.ad1.pk)
+
     def test_retrieve_ad(self):
 
         url = reverse("ads:ad-detail", kwargs={"pk": self.ad1.pk})
