@@ -1,5 +1,6 @@
 from .ad import AdSerializer as AdSerializer
 from .exchange_proposal import (
-    ReadOrUpdateExchangeProposalSerializer as ReadOrUpdateExchangeProposalSerializer,
+    ReadExchangeProposalSerializer as ReadExchangeProposalSerializer,
     CreateExchangeProposalSerializer as CreateExchangeProposalSerializer,
+    UpdateExchangeProposalSerializer as UpdateExchangeProposalSerializer,
 )

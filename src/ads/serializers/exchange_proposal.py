@@ -33,8 +33,8 @@ class CreateExchangeProposalSerializer(
         return data
 
 
-class ReadOrUpdateExchangeProposalSerializer(
-    CreateExchangeProposalSerializer,
+class ReadExchangeProposalSerializer(
+    serializers.ModelSerializer,
 ):
     class Meta:
         model = ExchangeProposal
@@ -45,3 +45,11 @@ class ReadOrUpdateExchangeProposalSerializer(
             "comment",
             "status",
         )
+
+
+class UpdateExchangeProposalSerializer(
+    serializers.ModelSerializer,
+):
+    class Meta:
+        model = ExchangeProposal
+        fields = ("status",)
