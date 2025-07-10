@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from rest_framework.permissions import IsAuthenticated
@@ -6,9 +7,10 @@ from ads.models import Ad, ExchangeProposal
 from ads.serializers import (
     AdSerializer,
     CreateExchangeProposalSerializer,
-    ReadOrUpdateExchangeProposalSerializer,
+    ReadExchangeProposalSerializer,
+    UpdateExchangeProposalSerializer,
 )
-from .permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly, IsReceiverOrSender
 
 
 class AdViewSet(viewsets.ModelViewSet):
@@ -36,12 +38,20 @@ class AdViewSet(viewsets.ModelViewSet):
 
 
 class ExchangeProposalViewSet(viewsets.ModelViewSet):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, IsReceiverOrSender)
+    filter_backends = (DjangoFilterBackend,)
+    filterset_fields = (
+        "ad_sender",
+        "ad_receiver",
+        "status",
+    )
 
     def get_serializer_class(self):
         if self.action == "create":
             return CreateExchangeProposalSerializer
-        return ReadOrUpdateExchangeProposalSerializer
+        if self.action in ("update", "partial_update"):
+            return UpdateExchangeProposalSerializer
+        return ReadExchangeProposalSerializer
 
     def get_queryset(self):
         queryset = (
@@ -49,8 +59,13 @@ class ExchangeProposalViewSet(viewsets.ModelViewSet):
                 "ad_sender",
                 "ad_receiver",
             )
-            .select_related("ad_receiver__user")
-            .filter(ad_receiver__user=self.request.user)
+            .select_related("ad_receiver__user", "ad_sender__user")
+            .filter(
+                Q(
+                    ad_receiver__user=self.request.user,
+                )
+                | Q(ad_sender__user=self.request.user)
+            )
             .all()
         )
         return queryset
