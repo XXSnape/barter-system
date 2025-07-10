@@ -1,3 +1,6 @@
+from django.urls import path
+from django.views.generic import TemplateView
+
 from .views import AdViewSet, ExchangeProposalViewSet
 from rest_framework.routers import DefaultRouter
 
@@ -15,3 +18,6 @@ router.register(
 
 
 urlpatterns = router.urls
+urlpatterns += [
+    path("hi", TemplateView.as_view(template_name="ads/base.html"))
+]
