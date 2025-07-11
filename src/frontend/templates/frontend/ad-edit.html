@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
+{% extends 'frontend/base.html' %}
+{% block head %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Редактирование объявления</title>
@@ -72,8 +71,8 @@
             z-index: 1000;
         }
     </style>
-</head>
-<body>
+{% endblock %}
+{% block body %}
     <div class="loading-overlay" id="loading-overlay">
         <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
     </div>
@@ -288,5 +287,4 @@
             loadAdData();
         });
     </script>
-</body>
-</html>
+{% endblock %}
