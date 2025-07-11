@@ -6,20 +6,28 @@ app_name = "frontend"
 
 urlpatterns = [
     path(
-        "create/",
-        TemplateView.as_view(template_name="frontend/ad-create.html"),
+        "ads/",
+        TemplateView.as_view(template_name="frontend/ad-list.html"),
+        name="ad-list",
     ),
     path(
-        "",
-        TemplateView.as_view(template_name="frontend/ads.html"),
-        name="ads-list",
-    ),
-    path(
-        "<int:id>/",
+        "ads/<int:id>/",
         TemplateView.as_view(template_name="frontend/ad-detail.html"),
+        name="ad-detail",
     ),
     path(
-        "<int:id>/edit/",
+        "ads/create/",
+        TemplateView.as_view(template_name="frontend/ad-create.html"),
+        name="ad-create",
+    ),
+    path(
+        "ads/<int:id>/edit/",
         TemplateView.as_view(template_name="frontend/ad-edit.html"),
+        name="ad-edit",
+    ),
+    path(
+        "proposals/",
+        TemplateView.as_view(template_name="frontend/proposal-list.html"),
+        name="proposal-list",
     ),
 ]

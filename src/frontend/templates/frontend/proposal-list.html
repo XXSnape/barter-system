@@ -1,0 +1,244 @@
+{% extends 'frontend/base.html' %}
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предложения по обмену</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accepted-color: #d4edda;
+            --accepted-text: #155724;
+            --pending-color: #fff3cd;
+            --pending-text: #856404;
+            --rejected-color: #f8d7da;
+            --rejected-text: #721c24;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .proposal-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .proposal-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .proposal-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .proposal-id {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .proposal-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .status-accepted {
+            background-color: var(--accepted-color);
+            color: var(--accepted-text);
+        }
+
+        .status-pending {
+            background-color: var(--pending-color);
+            color: var(--pending-text);
+        }
+
+        .status-rejected {
+            background-color: var(--rejected-color);
+            color: var(--rejected-text);
+        }
+
+        .proposal-details p {
+            margin-bottom: 8px;
+        }
+
+        .proposal-comment {
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+
+        .no-proposals {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div class="header">
+        <div class="container">
+            <h1>Предложения по обмену</h1>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
+
+        <div id="proposal-container">
+            <!-- Сюда будут вставлены предложения через JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingOverlay = document.getElementById('loading');
+            const proposalContainer = document.getElementById('proposal-container');
+
+            // Функция для получения данных с API
+            async function fetchProposals() {
+                try {
+                    loadingOverlay.style.display = 'flex';
+
+                    const response = await fetch('/api/v1/proposals/');
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    displayProposals(data.results);
+
+                } catch (error) {
+                    console.error('Ошибка при получении предложений:', error);
+                    proposalContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            Произошла ошибка при загрузке предложений. Пожалуйста, попробуйте позже.
+                        </div>
+                    `;
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+
+            // Функция для отображения предложений
+            function displayProposals(proposals) {
+                if (proposals.length === 0) {
+                    proposalContainer.innerHTML = `
+                        <div class="no-proposals">
+                            Нет доступных предложений по обмену
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '<div class="proposal-list">';
+
+                proposals.forEach(proposal => {
+                    // Определяем класс статуса
+                    let statusClass = '';
+                    if (proposal.status === 'Принято') {
+                        statusClass = 'status-accepted';
+                    } else if (proposal.status === 'Отклонено') {
+                        statusClass = 'status-rejected';
+                    } else {
+                        statusClass = 'status-pending';
+                    }
+
+                    html += `
+                        <div class="proposal-card">
+                            <div class="proposal-header">
+                                <span class="proposal-id">ID: ${proposal.id}</span>
+                                <span class="proposal-status ${statusClass}">
+                                    ${proposal.status}
+                                </span>
+                            </div>
+
+                            <div class="proposal-details">
+                                <p><strong>Объявление отправителя:</strong>
+                                    <a href="/ads/${proposal.ad_sender}" class="text-decoration-none">Объявление #${proposal.ad_sender}</a>
+                                </p>
+                                <p><strong>Объявление получателя:</strong>
+                                    <a href="/ads/${proposal.ad_receiver}" class="text-decoration-none">Объявление #${proposal.ad_receiver}</a>
+                                </p>
+                            </div>
+
+                            ${proposal.comment ? `
+                                <div class="proposal-comment">
+                                    <strong>Комментарий:</strong>
+                                    <p>${proposal.comment}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                proposalContainer.innerHTML = html;
+            }
+
+            // Загружаем предложения при загрузке страницы
+            fetchProposals();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
