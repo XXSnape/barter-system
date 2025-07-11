@@ -6,7 +6,8 @@ app_name = "frontend"
 
 urlpatterns = [
     path(
-        "create/", TemplateView.as_view(template_name="frontend/create.html")
+        "create/",
+        TemplateView.as_view(template_name="frontend/ad-create.html"),
     ),
     path("", TemplateView.as_view(template_name="frontend/ads.html")),
     path(
