@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+    {% block head %}
+      Base Head
+    {% endblock %}
+</head>
+<body>
+    <div class="user-nav">
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-person-circle"></i> {{ user.username }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                    <form id="logout-form" method="post" action="{% url 'rest_framework:logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item">
+                            <i class="bi bi-box-arrow-right"></i> Выйти
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+        {% else %}
+        <div class="d-flex">
+            <a href="{% url 'rest_framework:login' %}" class="btn btn-outline-light me-2">
+                <i class="bi bi-box-arrow-in-right"></i> Войти
+            </a>
+        </div>
+        {% endif %}
+    </div>
+{% block body %}
+  Base body
+{% endblock %}
+
+</body>
+</html>
