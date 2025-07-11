@@ -1,6 +1,7 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
+{% extends 'frontend/base.html' %}
+
+{% block head %}
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Список объявлений</title>
@@ -94,174 +95,176 @@
             color: var(--primary-color);
         }
     </style>
-</head>
-<body>
-    <header class="header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h1><i class="bi bi-megaphone"></i> Все объявления</h1>
-                    <p class="lead mb-0" id="ads-count">Загрузка...</p>
-                </div>
-                <div class="col-md-4 text-md-end">
-                    <a href="/ads/create/" class="btn btn-light btn-lg">
-                        <i class="bi bi-plus-circle"></i> Создать объявление
-                    </a>
-                </div>
+{% endblock %}
+
+{% block body %}
+<header class="header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1><i class="bi bi-megaphone"></i> Все объявления</h1>
+                <p class="lead mb-0" id="ads-count">Загрузка...</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/ads/create/" class="btn btn-light btn-lg">
+                    <i class="bi bi-plus-circle"></i> Создать объявление
+                </a>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <div class="container mb-5">
-        <div class="row" id="ads-container">
-            <div class="col-12 text-center my-5">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Загрузка...</span>
-                </div>
+<div class="container mb-5">
+    <div class="row" id="ads-container">
+        <div class="col-12 text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
             </div>
         </div>
-
-        <nav aria-label="Page navigation" class="d-none" id="pagination">
-            <ul class="pagination justify-content-center">
-                <li class="page-item" id="prev-page">
-                    <a class="page-link" href="#" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </a>
-                </li>
-                <li class="page-item" id="next-page">
-                    <a class="page-link" href="#" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        let currentPageUrl = '/api/v1/ads/';
+    <nav aria-label="Page navigation" class="d-none" id="pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" id="prev-page">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item" id="next-page">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
 
-        // Загрузка объявлений при открытии страницы
-        document.addEventListener('DOMContentLoaded', function() {
-            loadAds(currentPageUrl);
-        });
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentPageUrl = '/api/v1/ads/';
 
-        // Функция загрузки объявлений
-        function loadAds(url) {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    renderAds(data);
-                    updatePagination(data);
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки объявлений:', error);
-                    document.getElementById('ads-container').innerHTML = `
-                        <div class="col-12 text-center my-5">
-                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
-                            <h3 class="mt-3">Ошибка загрузки объявлений</h3>
-                            <button class="btn btn-primary mt-2" onclick="loadAds(currentPageUrl)">
-                                <i class="bi bi-arrow-clockwise"></i> Попробовать снова
-                            </button>
-                        </div>
-                    `;
-                });
-        }
+    // Загрузка объявлений при открытии страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadAds(currentPageUrl);
+    });
 
-        // Функция отрисовки объявлений
-        function renderAds(data) {
-            const container = document.getElementById('ads-container');
-            const ads = data.results;
-
-            if (ads.length === 0) {
-                container.innerHTML = `
-                    <div class="col-12">
-                        <div class="text-center py-5">
-                            <i class="bi bi-info-circle" style="font-size: 3rem; color: #6c757d;"></i>
-                            <h3 class="mt-3">Объявлений не найдено</h3>
-                            <a href="/ads/create/" class="btn btn-primary mt-2">
-                                <i class="bi bi-plus-circle"></i> Создать первое объявление
-                            </a>
-                        </div>
+    // Функция загрузки объявлений
+    function loadAds(url) {
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                renderAds(data);
+                updatePagination(data);
+            })
+            .catch(error => {
+                console.error('Ошибка загрузки объявлений:', error);
+                document.getElementById('ads-container').innerHTML = `
+                    <div class="col-12 text-center my-5">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                        <h3 class="mt-3">Ошибка загрузки объявлений</h3>
+                        <button class="btn btn-primary mt-2" onclick="loadAds(currentPageUrl)">
+                            <i class="bi bi-arrow-clockwise"></i> Попробовать снова
+                        </button>
                     </div>
                 `;
-                return;
-            }
+            });
+    }
 
-            container.innerHTML = ads.map(ad => `
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card ad-card h-100" onclick="viewAd(${ad.id})">
-                        <div class="ad-image-container">
-                            ${ad.image_url ?
-                                `<img src="${ad.image_url}" class="ad-image" alt="${ad.title}">` :
-                                `<i class="bi bi-image ad-no-image"></i>`}
-                        </div>
-                        <div class="card-body">
-                            <h5 class="ad-title">${ad.title}</h5>
-                            <p class="ad-description">${ad.description}</p>
-                            <div class="ad-footer">
-                                <small>
-                                    <i class="bi bi-person"></i> ${ad.username} •
-                                    <i class="bi bi-clock"></i> ${formatDate(ad.created_at)} •
-                                    <i class="bi bi-tag"></i> ${ad.category}
-                                </small>
-                            </div>
+    // Функция отрисовки объявлений
+    function renderAds(data) {
+        const container = document.getElementById('ads-container');
+        const ads = data.results;
+
+        if (ads.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi bi-info-circle" style="font-size: 3rem; color: #6c757d;"></i>
+                        <h3 class="mt-3">Объявлений не найдено</h3>
+                        <a href="/ads/create/" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-circle"></i> Создать первое объявление
+                        </a>
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = ads.map(ad => `
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card ad-card h-100" onclick="viewAd(${ad.id})">
+                    <div class="ad-image-container">
+                        ${ad.image_url ?
+                            `<img src="${ad.image_url}" class="ad-image" alt="${ad.title}">` :
+                            `<i class="bi bi-image ad-no-image"></i>`}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="ad-title">${ad.title}</h5>
+                        <p class="ad-description">${ad.description}</p>
+                        <div class="ad-footer">
+                            <small>
+                                <i class="bi bi-person"></i> ${ad.username} •
+                                <i class="bi bi-clock"></i> ${formatDate(ad.created_at)} •
+                                <i class="bi bi-tag"></i> ${ad.category}
+                            </small>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            </div>
+        `).join('');
 
-            document.getElementById('ads-count').textContent = `Найдено ${data.count} объявлений`;
-        }
+        document.getElementById('ads-count').textContent = `Найдено ${data.count} объявлений`;
+    }
 
-        // Функция обновления пагинации
-        function updatePagination(data) {
-            const pagination = document.getElementById('pagination');
-            const prevPage = document.getElementById('prev-page');
-            const nextPage = document.getElementById('next-page');
+    // Функция обновления пагинации
+    function updatePagination(data) {
+        const pagination = document.getElementById('pagination');
+        const prevPage = document.getElementById('prev-page');
+        const nextPage = document.getElementById('next-page');
 
-            if (data.previous || data.next) {
-                pagination.classList.remove('d-none');
+        if (data.previous || data.next) {
+            pagination.classList.remove('d-none');
 
-                prevPage.classList.toggle('disabled', !data.previous);
-                nextPage.classList.toggle('disabled', !data.next);
+            prevPage.classList.toggle('disabled', !data.previous);
+            nextPage.classList.toggle('disabled', !data.next);
 
-                if (data.previous) {
-                    prevPage.querySelector('a').onclick = (e) => {
-                        e.preventDefault();
-                        currentPageUrl = data.previous;
-                        loadAds(data.previous);
-                        window.scrollTo({top: 0, behavior: 'smooth'});
-                    };
-                }
-
-                if (data.next) {
-                    nextPage.querySelector('a').onclick = (e) => {
-                        e.preventDefault();
-                        currentPageUrl = data.next;
-                        loadAds(data.next);
-                        window.scrollTo({top: 0, behavior: 'smooth'});
-                    };
-                }
-            } else {
-                pagination.classList.add('d-none');
+            if (data.previous) {
+                prevPage.querySelector('a').onclick = (e) => {
+                    e.preventDefault();
+                    currentPageUrl = data.previous;
+                    loadAds(data.previous);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                };
             }
-        }
 
-        // Функция перехода к деталям объявления
-        function viewAd(adId) {
-            window.location.href = `/ads/${adId}/`;
+            if (data.next) {
+                nextPage.querySelector('a').onclick = (e) => {
+                    e.preventDefault();
+                    currentPageUrl = data.next;
+                    loadAds(data.next);
+                    window.scrollTo({top: 0, behavior: 'smooth'});
+                };
+            }
+        } else {
+            pagination.classList.add('d-none');
         }
+    }
 
-        // Форматирование даты
-        function formatDate(isoString) {
-            const date = new Date(isoString);
-            return date.toLocaleDateString('ru-RU', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-        }
-    </script>
+    // Функция перехода к деталям объявления
+    function viewAd(adId) {
+        window.location.href = `/ads/${adId}/`;
+    }
+
+    // Форматирование даты
+    function formatDate(isoString) {
+        const date = new Date(isoString);
+        return date.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+</script>
+{% endblock %}
 </body>
 </html>
