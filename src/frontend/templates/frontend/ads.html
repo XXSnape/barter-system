@@ -10,7 +10,6 @@
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
-            --accent-color: #4cc9f0;
         }
 
         body {
@@ -23,62 +22,50 @@
             color: white;
             padding: 2rem 0;
             margin-bottom: 2rem;
-            border-radius: 0 0 12px 12px;
         }
 
         .ad-card {
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
             height: 100%;
-        }
-
-        .ad-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-        }
-
-        .ad-image {
-            height: 200px;
-            object-fit: cover;
-            width: 100%;
             cursor: pointer;
         }
 
-        .ad-category {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+        .ad-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        .ad-condition {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
+        .ad-image-container {
+            height: 180px;
+            background-color: #f1f3f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ad-image {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .ad-no-image {
+            font-size: 3rem;
+            color: #adb5bd;
         }
 
         .ad-title {
-            font-weight: 700;
-            color: var(--secondary-color);
+            font-weight: 600;
+            color: #212529;
             margin-bottom: 0.5rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            cursor: pointer;
         }
 
         .ad-description {
@@ -87,37 +74,24 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            margin-bottom: 1rem;
+            font-size: 0.9rem;
         }
 
         .ad-footer {
+            font-size: 0.8rem;
+            color: #6c757d;
             border-top: 1px solid #eee;
-            padding-top: 0.75rem;
-            font-size: 0.85rem;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
 
-        .ad-date {
-            color: #adb5bd;
+        .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
 
-        .ad-author {
-            font-weight: 600;
-        }
-
-        .action-buttons {
-            position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-        }
-
-        .btn-sm-rounded {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
+        .page-link {
+            color: var(--primary-color);
         }
     </style>
 </head>
@@ -131,16 +105,15 @@
                 </div>
                 <div class="col-md-4 text-md-end">
                     <a href="/ads/create/" class="btn btn-light btn-lg">
-                        <i class="bi bi-plus-circle"></i> Добавить объявление
+                        <i class="bi bi-plus-circle"></i> Создать объявление
                     </a>
                 </div>
             </div>
         </div>
     </header>
 
-    <div class="container">
+    <div class="container mb-5">
         <div class="row" id="ads-container">
-            <!-- Объявления будут загружены динамически -->
             <div class="col-12 text-center my-5">
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Загрузка...</span>
@@ -148,64 +121,38 @@
             </div>
         </div>
 
-        <nav aria-label="Page navigation" class="mt-4 d-none" id="pagination">
+        <nav aria-label="Page navigation" class="d-none" id="pagination">
             <ul class="pagination justify-content-center">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                        <i class="bi bi-chevron-left"></i>
+                <li class="page-item" id="prev-page">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">
-                        <i class="bi bi-chevron-right"></i>
+                <li class="page-item" id="next-page">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>
             </ul>
         </nav>
     </div>
 
-    <!-- Модальное окно подтверждения удаления -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Подтверждение удаления</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Вы уверены, что хотите удалить это объявление?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Удалить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Текущий пользователь (можно получить из API или шаблона)
-        const currentUser = 'admin'; // Заменить на реального пользователя
+        let currentPageUrl = '/api/v1/ads/';
 
-        // Загрузка объявлений
+        // Загрузка объявлений при открытии страницы
         document.addEventListener('DOMContentLoaded', function() {
-            loadAds();
+            loadAds(currentPageUrl);
         });
 
         // Функция загрузки объявлений
-        function loadAds() {
-            fetch('/api/v1/ads/')
+        function loadAds(url) {
+            fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    renderAds(data.results);
-                    document.getElementById('ads-count').textContent = `Найдено ${data.count} предложений`;
-
-                    if (data.count > data.results.length) {
-                        document.getElementById('pagination').classList.remove('d-none');
-                    }
+                    renderAds(data);
+                    updatePagination(data);
                 })
                 .catch(error => {
                     console.error('Ошибка загрузки объявлений:', error);
@@ -213,8 +160,7 @@
                         <div class="col-12 text-center my-5">
                             <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
                             <h3 class="mt-3">Ошибка загрузки объявлений</h3>
-                            <p class="text-muted">Попробуйте обновить страницу</p>
-                            <button class="btn btn-primary mt-2" onclick="loadAds()">
+                            <button class="btn btn-primary mt-2" onclick="loadAds(currentPageUrl)">
                                 <i class="bi bi-arrow-clockwise"></i> Попробовать снова
                             </button>
                         </div>
@@ -223,8 +169,9 @@
         }
 
         // Функция отрисовки объявлений
-        function renderAds(ads) {
+        function renderAds(data) {
             const container = document.getElementById('ads-container');
+            const ads = data.results;
 
             if (ads.length === 0) {
                 container.innerHTML = `
@@ -232,9 +179,8 @@
                         <div class="text-center py-5">
                             <i class="bi bi-info-circle" style="font-size: 3rem; color: #6c757d;"></i>
                             <h3 class="mt-3">Объявлений не найдено</h3>
-                            <p class="text-muted">Создайте первое объявление</p>
                             <a href="/ads/create/" class="btn btn-primary mt-2">
-                                <i class="bi bi-plus-circle"></i> Создать объявление
+                                <i class="bi bi-plus-circle"></i> Создать первое объявление
                             </a>
                         </div>
                     </div>
@@ -243,111 +189,78 @@
             }
 
             container.innerHTML = ads.map(ad => `
-                <div class="col-lg-4 col-md-6 mb-4" id="ad-${ad.id}">
-                    <div class="card ad-card">
-                        <div class="position-relative">
-                            <img src="${ad.image_url || 'https://via.placeholder.com/400x300?text=No+Image'}"
-                                 class="ad-image"
-                                 alt="${ad.title}"
-                                 onclick="viewAd(${ad.id})">
-                            <span class="ad-category">${ad.category}</span>
-                            <span class="ad-condition">${ad.condition}</span>
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card ad-card h-100" onclick="viewAd(${ad.id})">
+                        <div class="ad-image-container">
+                            ${ad.image_url ?
+                                `<img src="${ad.image_url}" class="ad-image" alt="${ad.title}">` :
+                                `<i class="bi bi-image ad-no-image"></i>`}
                         </div>
-                        <div class="card-body position-relative">
-                            <h5 class="ad-title" onclick="viewAd(${ad.id})">${ad.title}</h5>
+                        <div class="card-body">
+                            <h5 class="ad-title">${ad.title}</h5>
                             <p class="ad-description">${ad.description}</p>
-                            <div class="d-flex justify-content-between align-items-center ad-footer">
-                                <span class="ad-date">
-                                    <i class="bi bi-clock"></i> ${new Date(ad.created_at).toLocaleDateString()}
-                                </span>
-                                <span class="ad-author">
-                                    <i class="bi bi-person"></i> ${ad.username}
-                                </span>
+                            <div class="ad-footer">
+                                <small>
+                                    <i class="bi bi-person"></i> ${ad.username} •
+                                    <i class="bi bi-clock"></i> ${formatDate(ad.created_at)} •
+                                    <i class="bi bi-tag"></i> ${ad.category}
+                                </small>
                             </div>
-
-                            ${ad.username === currentUser ? `
-                            <div class="action-buttons">
-                                <button class="btn btn-outline-primary btn-sm-rounded me-1"
-                                        onclick="editAd(${ad.id}, event)">
-                                    <i class="bi bi-pencil"></i>
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm-rounded"
-                                        onclick="confirmDelete(${ad.id}, event)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
             `).join('');
+
+            document.getElementById('ads-count').textContent = `Найдено ${data.count} объявлений`;
         }
 
-        // Функция просмотра объявления
+        // Функция обновления пагинации
+        function updatePagination(data) {
+            const pagination = document.getElementById('pagination');
+            const prevPage = document.getElementById('prev-page');
+            const nextPage = document.getElementById('next-page');
+
+            if (data.previous || data.next) {
+                pagination.classList.remove('d-none');
+
+                prevPage.classList.toggle('disabled', !data.previous);
+                nextPage.classList.toggle('disabled', !data.next);
+
+                if (data.previous) {
+                    prevPage.querySelector('a').onclick = (e) => {
+                        e.preventDefault();
+                        currentPageUrl = data.previous;
+                        loadAds(data.previous);
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    };
+                }
+
+                if (data.next) {
+                    nextPage.querySelector('a').onclick = (e) => {
+                        e.preventDefault();
+                        currentPageUrl = data.next;
+                        loadAds(data.next);
+                        window.scrollTo({top: 0, behavior: 'smooth'});
+                    };
+                }
+            } else {
+                pagination.classList.add('d-none');
+            }
+        }
+
+        // Функция перехода к деталям объявления
         function viewAd(adId) {
             window.location.href = `/ads/${adId}/`;
         }
 
-        // Функция редактирования объявления
-        function editAd(adId, event) {
-            event.stopPropagation();
-            window.location.href = `/ads/${adId}/edit/`;
-        }
-
-        // Функция подтверждения удаления
-        let adToDelete = null;
-        function confirmDelete(adId, event) {
-            event.stopPropagation();
-            adToDelete = adId;
-            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
-        }
-
-        // Обработчик удаления
-        document.getElementById('confirmDelete').addEventListener('click', function() {
-            if (!adToDelete) return;
-
-            fetch(`/api/v1/ads/${adToDelete}/`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    document.getElementById(`ad-${adToDelete}`).remove();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
-                    modal.hide();
-
-                    // Обновляем счетчик
-                    const countElement = document.getElementById('ads-count');
-                    const currentCount = parseInt(countElement.textContent.match(/\d+/)[0]);
-                    countElement.textContent = `Найдено ${currentCount - 1} предложений`;
-                } else {
-                    alert('Ошибка при удалении объявления');
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('Ошибка при удалении объявления');
+        // Форматирование даты
+        function formatDate(isoString) {
+            const date = new Date(isoString);
+            return date.toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
             });
-        });
-
-        // Вспомогательная функция для получения CSRF токена
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
         }
     </script>
 </body>
