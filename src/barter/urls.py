@@ -36,7 +36,7 @@ urlpatterns = [
         include("ads.urls"),
     ),
     path(
-        "ads/",
+        "",
         include("frontend.urls"),
     ),
 ]

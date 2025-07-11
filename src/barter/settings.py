@@ -144,5 +144,5 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
 }
 
-LOGIN_REDIRECT_URL = reverse_lazy("frontend:ads-list")
-LOGOUT_REDIRECT_URL = reverse_lazy("frontend:ads-list")
+LOGIN_REDIRECT_URL = reverse_lazy("frontend:ad-list")
+LOGOUT_REDIRECT_URL = reverse_lazy("frontend:ad-list")
