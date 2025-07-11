@@ -47,11 +47,25 @@
             border-radius: 8px;
             padding: 1.5rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .proposal-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .proposal-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-color);
         }
 
         .proposal-header {
@@ -127,6 +141,17 @@
             width: 3rem;
             height: 3rem;
         }
+
+        .ad-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .ad-link:hover {
+            color: var(--secondary-color);
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 {% block body %}
@@ -144,21 +169,39 @@
         </div>
 
         <div id="proposal-container">
-            <!-- Сюда будут вставлены предложения через JavaScript -->
         </div>
+
+        <nav aria-label="Page navigation" class="d-none" id="pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" id="prev-page">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li class="page-item" id="next-page">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const loadingOverlay = document.getElementById('loading');
             const proposalContainer = document.getElementById('proposal-container');
+            const pagination = document.getElementById('pagination');
+            const prevPage = document.getElementById('prev-page');
+            const nextPage = document.getElementById('next-page');
 
-            // Функция для получения данных с API
-            async function fetchProposals() {
+            let currentPageUrl = '/api/v1/proposals/';
+
+            async function fetchProposals(url = currentPageUrl) {
                 try {
                     loadingOverlay.style.display = 'flex';
 
-                    const response = await fetch('/api/v1/proposals/');
+                    const response = await fetch(url);
 
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
@@ -166,6 +209,7 @@
 
                     const data = await response.json();
                     displayProposals(data.results);
+                    updatePagination(data);
 
                 } catch (error) {
                     console.error('Ошибка при получении предложений:', error);
@@ -179,7 +223,6 @@
                 }
             }
 
-            // Функция для отображения предложений
             function displayProposals(proposals) {
                 if (proposals.length === 0) {
                     proposalContainer.innerHTML = `
@@ -193,7 +236,6 @@
                 let html = '<div class="proposal-list">';
 
                 proposals.forEach(proposal => {
-                    // Определяем класс статуса
                     let statusClass = '';
                     if (proposal.status === 'Принято') {
                         statusClass = 'status-accepted';
@@ -203,8 +245,10 @@
                         statusClass = 'status-pending';
                     }
 
+                    const proposalDetailUrl = `/proposals/${proposal.id}/`;
+
                     html += `
-                        <div class="proposal-card">
+                        <div class="proposal-card" onclick="window.location.href='${proposalDetailUrl}'">
                             <div class="proposal-header">
                                 <span class="proposal-id">ID: ${proposal.id}</span>
                                 <span class="proposal-status ${statusClass}">
@@ -213,11 +257,15 @@
                             </div>
 
                             <div class="proposal-details">
-                                <p><strong>Объявление отправителя:</strong>
-                                    <a href="/ads/${proposal.ad_sender}" class="text-decoration-none">Объявление #${proposal.ad_sender}</a>
+                                <p><strong>От:</strong>
+                                    <a href="/ads/${proposal.ad_sender}" class="ad-link" onclick="event.stopPropagation()">
+                                        Объявление #${proposal.ad_sender}
+                                    </a>
                                 </p>
-                                <p><strong>Объявление получателя:</strong>
-                                    <a href="/ads/${proposal.ad_receiver}" class="text-decoration-none">Объявление #${proposal.ad_receiver}</a>
+                                <p><strong>Кому:</strong>
+                                    <a href="/ads/${proposal.ad_receiver}" class="ad-link" onclick="event.stopPropagation()">
+                                        Объявление #${proposal.ad_receiver}
+                                    </a>
                                 </p>
                             </div>
 
@@ -235,7 +283,35 @@
                 proposalContainer.innerHTML = html;
             }
 
-            // Загружаем предложения при загрузке страницы
+            function updatePagination(data) {
+                if (data.previous || data.next) {
+                    pagination.classList.remove('d-none');
+
+                    prevPage.classList.toggle('disabled', !data.previous);
+                    nextPage.classList.toggle('disabled', !data.next);
+
+                    if (data.previous) {
+                        prevPage.querySelector('a').onclick = (e) => {
+                            e.preventDefault();
+                            currentPageUrl = data.previous;
+                            fetchProposals(data.previous);
+                            window.scrollTo({top: 0, behavior: 'smooth'});
+                        };
+                    }
+
+                    if (data.next) {
+                        nextPage.querySelector('a').onclick = (e) => {
+                            e.preventDefault();
+                            currentPageUrl = data.next;
+                            fetchProposals(data.next);
+                            window.scrollTo({top: 0, behavior: 'smooth'});
+                        };
+                    }
+                } else {
+                    pagination.classList.add('d-none');
+                }
+            }
+
             fetchProposals();
         });
     </script>

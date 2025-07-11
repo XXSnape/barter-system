@@ -143,12 +143,10 @@
 <script>
     let currentPageUrl = '/api/v1/ads/';
 
-    // Загрузка объявлений при открытии страницы
     document.addEventListener('DOMContentLoaded', function() {
         loadAds(currentPageUrl);
     });
 
-    // Функция загрузки объявлений
     function loadAds(url) {
         fetch(url)
             .then(response => response.json())
@@ -170,7 +168,6 @@
             });
     }
 
-    // Функция отрисовки объявлений
     function renderAds(data) {
         const container = document.getElementById('ads-container');
         const ads = data.results;
@@ -216,7 +213,6 @@
         document.getElementById('ads-count').textContent = `Найдено ${data.count} объявлений`;
     }
 
-    // Функция обновления пагинации
     function updatePagination(data) {
         const pagination = document.getElementById('pagination');
         const prevPage = document.getElementById('prev-page');
@@ -250,12 +246,10 @@
         }
     }
 
-    // Функция перехода к деталям объявления
     function viewAd(adId) {
         window.location.href = `/ads/${adId}/`;
     }
 
-    // Форматирование даты
     function formatDate(isoString) {
         const date = new Date(isoString);
         return date.toLocaleDateString('ru-RU', {
