@@ -9,7 +9,11 @@ urlpatterns = [
         "create/",
         TemplateView.as_view(template_name="frontend/ad-create.html"),
     ),
-    path("", TemplateView.as_view(template_name="frontend/ads.html")),
+    path(
+        "",
+        TemplateView.as_view(template_name="frontend/ads.html"),
+        name="ads-list",
+    ),
     path(
         "<int:id>/",
         TemplateView.as_view(template_name="frontend/ad-detail.html"),
