@@ -35,4 +35,8 @@ urlpatterns = [
         "api/v1/",
         include("ads.urls"),
     ),
+    path(
+        "ads/",
+        include("frontend.urls"),
+    ),
 ]

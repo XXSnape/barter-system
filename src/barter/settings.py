@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     # third-party apps
     "ads.apps.AdsConfig",
     "users.apps.UsersConfig",
+    "frontend.apps.FrontendConfig",
 ]
 
 MIDDLEWARE = [
