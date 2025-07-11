@@ -1,9 +1,6 @@
-from django.urls import path
-from django.views.generic import TemplateView
-
-from .views import AdViewSet, ExchangeProposalViewSet
 from rest_framework.routers import DefaultRouter
 
+from .views import AdViewSet, ExchangeProposalViewSet
 
 app_name = "ads"
 

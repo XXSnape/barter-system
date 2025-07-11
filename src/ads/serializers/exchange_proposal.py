@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from ads.models import ExchangeProposal, Ad
+
+from ads.models import ExchangeProposal
 
 
 class CreateExchangeProposalSerializer(
@@ -22,7 +23,8 @@ class CreateExchangeProposalSerializer(
         user = self.context["request"].user
         if data["ad_sender"].user != user:
             raise serializers.ValidationError(
-                "Вы не можете отправить предложение обмена не на свое объявление",
+                "Вы не можете отправить "
+                "предложение обмена не на свое объявление",
                 code=403,
             )
         if data["ad_receiver"].user == user:

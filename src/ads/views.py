@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters
+from rest_framework import filters, viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from ads.models import Ad, ExchangeProposal
@@ -10,6 +10,7 @@ from ads.serializers import (
     ReadExchangeProposalSerializer,
     UpdateExchangeProposalSerializer,
 )
+
 from .permissions import IsAuthorOrReadOnly, IsReceiverOrSender
 
 
