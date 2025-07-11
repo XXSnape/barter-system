@@ -1,0 +1,310 @@
+{% extends 'frontend/base.html' %}
+{% block head %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали предложения</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accepted-color: #d4edda;
+            --accepted-text: #155724;
+            --pending-color: #fff3cd;
+            --pending-text: #856404;
+            --rejected-color: #f8d7da;
+            --rejected-text: #721c24;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .proposal-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .proposal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .proposal-id {
+            font-weight: bold;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .proposal-status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .status-accepted {
+            background-color: var(--accepted-color);
+            color: var(--accepted-text);
+        }
+
+        .status-pending {
+            background-color: var(--pending-color);
+            color: var(--pending-text);
+        }
+
+        .status-rejected {
+            background-color: var(--rejected-color);
+            color: var(--rejected-text);
+        }
+
+        .proposal-details p {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .proposal-comment {
+            background-color: #f9f9f9;
+            padding: 1.2rem;
+            border-radius: 4px;
+            margin: 1.5rem 0;
+        }
+
+        .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+            max-width: 300px;
+            margin: 1rem 0;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .btn-save:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div class="header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0">Детали предложения</h1>
+                <a href="/proposals/" class="btn btn-light">
+                    <i class="bi bi-arrow-left"></i> К списку предложений
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+        </div>
+
+        <div id="proposal-container">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingOverlay = document.getElementById('loading');
+            const proposalContainer = document.getElementById('proposal-container');
+            
+            const pathParts = window.location.pathname.split('/');
+            const proposalId = pathParts[pathParts.length - 2];
+            
+            async function fetchProposal() {
+                try {
+                    loadingOverlay.style.display = 'flex';
+                    
+                    const response = await fetch(`/api/v1/proposals/${proposalId}/`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const proposal = await response.json();
+                    displayProposal(proposal);
+                    
+                } catch (error) {
+                    console.error('Ошибка при получении предложения:', error);
+                    proposalContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            Произошла ошибка при загрузке предложения. Пожалуйста, попробуйте позже.
+                        </div>
+                    `;
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+            
+            function displayProposal(proposal) {
+                let statusClass = '';
+                if (proposal.status === 'Принято') {
+                    statusClass = 'status-accepted';
+                } else if (proposal.status === 'Отклонено') {
+                    statusClass = 'status-rejected';
+                } else {
+                    statusClass = 'status-pending';
+                }
+                
+                const html = `
+                    <div class="proposal-card">
+                        <div class="proposal-header">
+                            <span class="proposal-id">ID: ${proposal.id}</span>
+                            <span class="proposal-status ${statusClass}">
+                                ${proposal.status}
+                            </span>
+                        </div>
+                        
+                        <div class="proposal-details">
+                            <p><strong>Объявление отправителя:</strong> 
+                                <a href="/ads/${proposal.ad_sender}">Объявление #${proposal.ad_sender}</a>
+                            </p>
+                            <p><strong>Объявление получателя:</strong> 
+                                <a href="/ads/${proposal.ad_receiver}">Объявление #${proposal.ad_receiver}</a>
+                            </p>
+                        </div>
+                        
+                        ${proposal.comment ? `
+                            <div class="proposal-comment">
+                                <strong>Комментарий:</strong>
+                                <p>${proposal.comment}</p>
+                            </div>
+                        ` : ''}
+                        
+                        <form id="status-form">
+                            <label for="status" class="form-label"><strong>Изменить статус:</strong></label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="Ожидает" ${proposal.status === 'Ожидает' ? 'selected' : ''}>Ожидает</option>
+                                <option value="Принято" ${proposal.status === 'Принято' ? 'selected' : ''}>Принято</option>
+                                <option value="Отклонено" ${proposal.status === 'Отклонено' ? 'selected' : ''}>Отклонено</option>
+                            </select>
+                            <button type="submit" class="btn-save">Сохранить</button>
+                        </form>
+                    </div>
+                `;
+                
+                proposalContainer.innerHTML = html;
+                
+                document.getElementById('status-form').addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    await updateProposalStatus(proposalId);
+                });
+            }
+            
+            async function updateProposalStatus(proposalId) {
+                try {
+                    loadingOverlay.style.display = 'flex';
+                    
+                    const newStatus = document.getElementById('status').value;
+                    const csrfToken = getCookie('csrftoken');
+                    
+                    const response = await fetch(`/api/v1/proposals/${proposalId}/`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const statusElement = document.querySelector('.proposal-status');
+                    statusElement.textContent = newStatus;
+                    
+                    statusElement.classList.remove('status-accepted', 'status-pending', 'status-rejected');
+                    if (newStatus === 'Принято') {
+                        statusElement.classList.add('status-accepted');
+                    } else if (newStatus === 'Отклонено') {
+                        statusElement.classList.add('status-rejected');
+                    } else {
+                        statusElement.classList.add('status-pending');
+                    }
+                    
+                    alert('Статус успешно обновлен!');
+                    
+                } catch (error) {
+                    console.error('Ошибка при обновлении статуса:', error);
+                    alert('Произошла ошибка при обновлении статуса');
+                } finally {
+                    loadingOverlay.style.display = 'none';
+                }
+            }
+            
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            fetchProposal();
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

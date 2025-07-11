@@ -30,4 +30,9 @@ urlpatterns = [
         TemplateView.as_view(template_name="frontend/proposal-list.html"),
         name="proposal-list",
     ),
+    path(
+        "proposals/<int:id>/",
+        TemplateView.as_view(template_name="frontend/proposal-detail.html"),
+        name="proposal-detail",
+    ),
 ]
