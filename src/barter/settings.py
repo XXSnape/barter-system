@@ -145,3 +145,4 @@ REST_FRAMEWORK = {
 }
 
 LOGIN_REDIRECT_URL = reverse_lazy("frontend:ads-list")
+LOGOUT_REDIRECT_URL = reverse_lazy("frontend:ads-list")
