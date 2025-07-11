@@ -13,4 +13,8 @@ urlpatterns = [
         "<int:id>/",
         TemplateView.as_view(template_name="frontend/ad-detail.html"),
     ),
+    path(
+        "<int:id>/edit/",
+        TemplateView.as_view(template_name="frontend/ad-edit.html"),
+    ),
 ]

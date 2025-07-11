@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Редактирование объявления</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .edit-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+        }
+
+        .image-preview {
+            max-height: 300px;
+            max-width: 100%;
+            margin-top: 1rem;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+    </div>
+
+    <header class="edit-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1><i class="bi bi-pencil-square"></i> Редактирование объявления</h1>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <a href="#" id="back-link" class="btn btn-light">
+                        <i class="bi bi-arrow-left"></i> Назад
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mb-5">
+        <div class="form-container">
+            <form id="edit-ad-form">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Название*</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Описание*</label>
+                    <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label for="image_url" class="form-label">Ссылка на изображение</label>
+                    <input type="url" class="form-control" id="image_url" name="image_url">
+                    <img src="" alt="Предпросмотр" class="image-preview" id="image-preview">
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="category" class="form-label">Категория*</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="Электроника">Электроника</option>
+                            <option value="Спорт">Спорт</option>
+                            <option value="Книги">Книги</option>
+                            <option value="Одежда">Одежда</option>
+                            <option value="Другое">Другое</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="condition" class="form-label">Состояние*</label>
+                        <select class="form-select" id="condition" name="condition" required>
+                            <option value="Новое">Новое</option>
+                            <option value="Б/у - Отличное">Б/у - Отличное</option>
+                            <option value="Б/у - Хорошее">Б/у - Хорошее</option>
+                            <option value="Б/у - Удовлетворительное">Б/у - Удовлетворительное</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-save text-white" id="save-btn">
+                        <span class="spinner-border spinner-border-sm" id="save-spinner" style="display: none;"></span>
+                        Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Получаем ID объявления из URL (формат: /ads/11/edit/)
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        const adId = pathSegments[1]; // ['ads', '11', 'edit']
+        console.log('Extracted adId:', adId);
+
+        // Функция для заполнения формы данными
+        const fillForm = (ad) => {
+            document.getElementById('title').value = ad.title || '';
+            document.getElementById('description').value = ad.description || '';
+            document.getElementById('image_url').value = ad.image_url || '';
+            document.getElementById('category').value = ad.category || 'Другое';
+            document.getElementById('condition').value = ad.condition || 'Новое';
+
+            // Превью изображения
+            const preview = document.getElementById('image-preview');
+            if (ad.image_url) {
+                preview.src = ad.image_url;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        };
+
+        // Функция загрузки данных объявления
+        const loadAdData = () => {
+            const apiUrl = `/api/v1/ads/${adId}/`;
+            console.log('Fetching from:', apiUrl);
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data);
+                    fillForm(data);
+                    document.getElementById('loading-overlay').style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    document.getElementById('loading-overlay').innerHTML = `
+                        <div class="text-center">
+                            <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
+                            <h3 class="mt-3">Ошибка загрузки</h3>
+                            <p>${error.message}</p>
+                            <button class="btn btn-primary mt-3" onclick="loadAdData()">
+                                <i class="bi bi-arrow-clockwise"></i> Попробовать снова
+                            </button>
+                        </div>
+                    `;
+                });
+        };
+
+        document.getElementById('image_url').addEventListener('input', function() {
+            const preview = document.getElementById('image-preview');
+            if (this.value) {
+                preview.src = this.value;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        document.getElementById('edit-ad-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const saveBtn = document.getElementById('save-btn');
+            const spinner = document.getElementById('save-spinner');
+
+            // Блокируем кнопку и показываем спиннер
+            saveBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+
+            // Формируем данные для отправки
+            const formData = {
+                title: form.title.value,
+                description: form.description.value,
+                image_url: form.image_url.value || null,
+                category: form.category.value,
+                condition: form.condition.value
+            };
+
+            console.log('Sending PATCH with:', formData);
+
+            fetch(`/api/v1/ads/${adId}/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.json().then(err => { throw err; });
+                }
+            })
+            .then(data => {
+                console.log('Update successful:', data);
+                window.location.href = `/ads/${adId}/`;
+            })
+            .catch(error => {
+                console.error('Update error:', error);
+                alert(`Ошибка сохранения: ${error.message || 'Неизвестная ошибка'}`);
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                spinner.style.display = 'none';
+            });
+        });
+
+        const getCookie = (name) => {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        };
+
+        document.getElementById('back-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = `/ads/${adId}/`;
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing edit page for ad:', adId);
+            loadAdData();
+        });
+    </script>
+</body>
+</html>
