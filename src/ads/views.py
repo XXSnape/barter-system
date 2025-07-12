@@ -56,11 +56,12 @@ class ExchangeProposalViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = (
-            ExchangeProposal.objects.prefetch_related(
+            ExchangeProposal.objects.select_related(
                 "ad_sender",
                 "ad_receiver",
+                "ad_receiver__user",
+                "ad_sender__user",
             )
-            .select_related("ad_receiver__user", "ad_sender__user")
             .filter(
                 Q(
                     ad_receiver__user=self.request.user,
